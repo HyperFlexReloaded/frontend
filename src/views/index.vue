@@ -1,18 +1,18 @@
 <template>
   <main>
     <a-carousel effect="fade" dotPosition="left" autoplay>
-      <div
-        class="imgaa"
-        v-for="(image, index) of IMAGE"
+      <img
+        class="background"
+        v-for="(image, index) of IMAGES"
         :key="index"
-        :style="{ backgroundImage: `url('${image}')` }"
+        :src="image"
       />
     </a-carousel>
     <div class="content">
       <div>
         <img src="@/assets/image/HyperFlex-2.png" alt class="logo" />
-        <div class="inforSV">
-          <p class="ip" style="text-transform: uppercase;">
+        <div class="server-info">
+          <p class="bg-dark server-info-ip">
             SERVER IP »
             <a-tooltip
               @click="copy_ip_address()"
@@ -22,42 +22,26 @@
               {{ ip_address }}
             </a-tooltip>
           </p>
-          <p class="info">
+          <p class="bg-dark server-info-status">
             Hiện đang có
             <span>0</span> người đang trực tuyến.
           </p>
         </div>
         <div class="contact">
-          <a-tooltip>
-            <template slot="title">Fanpage</template>
-            <a href="https://www.facebook.com/hyperflex.vn" target="_blank">
-              <i class="fb" />
-            </a>
-          </a-tooltip>
-          <a-tooltip>
-            <template slot="title">Group</template>
+          <a-tooltip v-for="action in ACTIONS" :key="action.key">
+            <template slot="title">{{ action.title }}</template>
             <a
-              href="https://www.facebook.com/groups/hyperflex.vn"
-              target="_blank"
+              class="bg-dark"
+              :href="action.url"
+              :target="action.url ? '_blank' : null"
+              @click="on_action_click(action.key)"
             >
-              <i class="group" />
-            </a>
-          </a-tooltip>
-          <a-tooltip>
-            <template slot="title">Discord</template>
-            <a href="https://discord.gg/SzkjCmU" target="_blank">
-              <i class="discord" />
-            </a>
-          </a-tooltip>
-          <a-tooltip>
-            <template slot="title">Donate</template>
-            <a>
-              <i class="donate" />
+              <i :class="action.icon" />
             </a>
           </a-tooltip>
         </div>
       </div>
-      <div class="copyright">
+      <div class="bg-dark copyright">
         <p>© 2020 hyperflex.vn - Server Minecraft Việt Nam</p>
       </div>
     </div>
@@ -75,11 +59,35 @@ import { Vue, Component } from "vue-property-decorator";
 @Component
 export default class App extends Vue {
   ip_address = "play.hyperflex.vn";
-  inc = 0;
-  IMAGE = [F1, F2, F3, F4, F5];
+  IMAGES = [F1, F2, F3, F4, F5];
   $refs!: {
     titleCopy: Element | Element[] | Vue | Vue[];
   };
+  ACTIONS = [
+    {
+      title: "Fanpage",
+      key: "fb",
+      icon: "fb",
+      url: "https://www.facebook.com/hyperflex.vn"
+    },
+    {
+      title: "Group",
+      key: "group",
+      icon: "group",
+      url: "https://www.facebook.com/groups/hyperflex.vn"
+    },
+    {
+      title: "Discord",
+      key: "discord",
+      icon: "discord",
+      url: "https://discord.gg/SzkjCmU"
+    },
+    {
+      title: "Donate",
+      key: "donate",
+      icon: "donate"
+    }
+  ];
   copy_state = "Ấn Để Copy.";
 
   copy_text(text: string) {
@@ -95,10 +103,14 @@ export default class App extends Vue {
     this.copy_text(this.ip_address);
     this.copy_state = "Đã Copy!";
   }
+
   after_mouse_leave() {
-    setTimeout(() => {
-      this.copy_state = "Ấn Để Copy.";
-    }, 300);
+    setTimeout(() => (this.copy_state = "Ấn Để Copy."), 300);
+  }
+
+  on_action_click(key: string) {
+    //TODO: add support modal for donation page
+    return;
   }
 }
 </script>
@@ -116,13 +128,16 @@ export default class App extends Vue {
   }
 }
 
-.imgaa {
-  width: 100vw !important;
+.bg-dark {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 5px 15px;
+  border-radius: 6px;
+}
+
+.background {
   height: 100vh;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
   filter: brightness(0.5);
+  opacity: 0.75;
 }
 
 .content {
@@ -132,44 +147,29 @@ export default class App extends Vue {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.copyright {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  padding: 5px 10px 5px 15px;
-  border-radius: 0 10px 0 0;
-  & > p {
-    color: white;
-    margin: 0;
-    font-size: 0.9em;
-    font-weight: 300;
-    letter-spacing: 1.2px;
-    word-spacing: 2.2px;
+  .logo {
+    width: 700px;
   }
 }
 
-.inforSV {
+.server-info {
   display: flex;
   justify-content: space-between;
   margin: 15px 0;
-  & > .info > span {
+  &-ip {
+    text-transform: uppercase;
+  }
+  &-status span {
     cursor: default;
   }
-  & > p {
+  p {
     font-size: 17px;
     font-weight: 100;
     cursor: default;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 5px 15px;
-    border-radius: 6px;
     margin: 0;
     color: white;
     letter-spacing: 0.8px;
-    & > span {
+    span {
       color: #f4c75d;
       font-weight: 500;
       cursor: pointer;
@@ -183,19 +183,16 @@ export default class App extends Vue {
   a {
     display: inline-block;
     border-radius: 10px;
-    background-color: rgba(0, 0, 0, 0.5);
     cursor: pointer;
     width: 40px;
     height: 40px;
     padding: 9px;
     margin: 0 15px;
-    &:hover {
-      & > i {
-        filter: invert(93%) sepia(73%) saturate(6249%) hue-rotate(314deg)
-          brightness(103%) contrast(91%);
-      }
+    &:hover i {
+      filter: invert(93%) sepia(73%) saturate(6249%) hue-rotate(314deg)
+        brightness(103%) contrast(91%);
     }
-    & > i {
+    i {
       display: block;
       width: 100%;
       height: 100%;
@@ -204,23 +201,35 @@ export default class App extends Vue {
       background-position: center;
       background-repeat: no-repeat;
       background-size: inherit;
-    }
-    & > i.fb {
-      background-image: url("~@/assets/icon/facebook-f.svg");
-    }
-    & > i.group {
-      background-image: url("~@/assets/icon/user-friends.svg");
-    }
-    & > i.discord {
-      background-image: url("~@/assets/icon/discord.svg");
-    }
-    & > i.donate {
-      background-image: url("~@/assets/icon/donate.svg");
+      &.fb {
+        background-image: url("~@/assets/icon/facebook-f.svg");
+      }
+      &.group {
+        background-image: url("~@/assets/icon/user-friends.svg");
+      }
+      &.discord {
+        background-image: url("~@/assets/icon/discord.svg");
+      }
+      &.donate {
+        background-image: url("~@/assets/icon/donate.svg");
+      }
     }
   }
 }
 
-.logo {
-  width: 700px;
+.copyright {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  border-radius: 0px 12px 0px 0px;
+  p {
+    color: white;
+    margin: 0;
+    font-size: 0.9em;
+    font-weight: 300;
+    letter-spacing: 1.2px;
+    word-spacing: 2.2px;
+  }
 }
 </style>
