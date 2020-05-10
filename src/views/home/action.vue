@@ -11,14 +11,42 @@
         <i :class="action.icon" />
       </a>
     </a-tooltip>
+    <a-modal
+      v-model="visibleModal"
+      title="Ủng Hộ Server HyperFlex"
+      :footer="null"
+    >
+      <a-tooltip>
+        <template slot="title">Kiểm tra thẻ cào</template>
+        <i class="check-card" @click="visible_check_card()" />
+      </a-tooltip>
+      <app-donate></app-donate>
+    </a-modal>
+    <a-modal
+      v-model="visibleCheckCard"
+      title="Kiểm tra thẻ cào"
+      :footer="null"
+      @cancel="close_check_card"
+    >
+      <app-check-card></app-check-card>
+    </a-modal>
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
+import donate from "./donate/base.vue";
+import CheckCard from "./check-card/base.vue";
 
-@Component
+@Component({
+  components: {
+    appDonate: donate,
+    appCheckCard: CheckCard
+  }
+})
 export default class App extends Vue {
+  visibleModal = false;
+  visibleCheckCard = false;
   ACTIONS = [
     {
       title: "Fanpage",
@@ -46,8 +74,20 @@ export default class App extends Vue {
   ];
 
   on_action_click(key: string) {
-    //TODO: add support modal for donation page
-    return key;
+    if (key != "donate") {
+      return;
+    }
+    this.visibleModal = true;
+  }
+
+  visible_check_card() {
+    this.visibleModal = false;
+    this.visibleCheckCard = true;
+  }
+
+  close_check_card() {
+    this.visibleCheckCard = false;
+    this.visibleModal = true;
   }
 }
 </script>
